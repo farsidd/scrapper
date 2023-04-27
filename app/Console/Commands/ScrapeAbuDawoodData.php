@@ -2,21 +2,35 @@
 
 namespace App\Console\Commands;
 
-use App\Models\HadeesModel;
+use App\Models\AbuDawoodModel;
 use Illuminate\Console\Command;
 use Goutte;
-
-class ScrapeData extends Command
+class ScrapeAbuDawoodData extends Command
 {
-    protected $signature = 'scrape:data';
-    protected $description = 'Scrape data using MySpider';
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'scrape:AbuDawoodData';
 
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Command description';
+
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
     public function handle()
     {
-        $this->output->writeln('Scraper Running');
-
-        for ($i = 1; $i <= 7563; $i++) {
-            $url = "https://www.quranohadith.com/hadees-details/bukhari/{$i}";
+        $this->output->writeln('Scraper Running For Abu Dawood');
+        for ($i = 1; $i <= 5274; $i++) {
+            $url = "https://www.quranohadith.com/hadees-details/abu-dawood/{$i}";
     
             $crawler = Goutte::request('GET', $url);
 
@@ -33,9 +47,9 @@ class ScrapeData extends Command
             $book_chapter_ur = $crawler->filter('section:nth-of-type(2) h4')->first()->text();
             $book_chapter_en = $crawler->filter('section:nth-of-type(2) p')->first()->text();
 
-            $authenticity_en = $crawler->filter('section:nth-of-type(4) .col-6.text-left p.m-0 span.text-success')->first()->text();
-            $authenticity_ur = $crawler->filter('section:nth-of-type(4) .col-6.text-right h3.m-0 span.text-success')->first()->text();
-            $hadeesModel = new HadeesModel();
+            $authenticity_en = $crawler->filter('section:nth-of-type(4) .col-6.text-left p.m-0 span.text-success, section:nth-of-type(4) .col-6.text-left p.m-0 span.text-danger')->first()->text();
+            $authenticity_ur = $crawler->filter('section:nth-of-type(4) .col-6.text-right h3.m-0 span.text-success, section:nth-of-type(4) .col-6.text-right h3.m-0 span.text-danger')->first()->text();
+            $hadeesModel = new AbuDawoodModel();
             $hadeesModel->hadees_number = $hadeesNumberOnly;
             $hadeesModel->hadees_en = $hadees_en;
             $hadeesModel->hadees_ar = $hadees_ar;
@@ -49,7 +63,6 @@ class ScrapeData extends Command
             $hadeesModel->save();
 
             $this->output->writeln("Hadees #{$hadeesNumberOnly}: Saved To Database");
-            // $this->output->writeln("Authenticity: {$authenticity}");
-        }
+    }
     }
 }
